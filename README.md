@@ -2,7 +2,7 @@
 
 # jwt
 
-- api/tocken
+- api/token
 
 # routs
 
