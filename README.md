@@ -4,7 +4,7 @@
 
 - api/token
 
-# routs
+# endpoints
 
 - api/v1/posts
 - api/v1/comments
