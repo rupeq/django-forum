@@ -58,8 +58,6 @@ class Comment(models.Model):
         related_name='children'
     )
 
-    def __str__(self):
-        return f"id {self.id}"
 
     def __str__(self):
         return f"{self.author} - {self.post}"
