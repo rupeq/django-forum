@@ -59,11 +59,20 @@ class Comment(models.Model):
     )
 
     def __str__(self):
+        return f"id {self.id}"
+
+    def __str__(self):
         return f"{self.author} - {self.post}"
 
 
 class Statistic(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    total_likes = models.PositiveIntegerField(default=0)
-    total_dislikes = models.PositiveIntegerField(default=0)
+
+    total_posts_likes = models.PositiveIntegerField(default=0)
+    total_posts_dislikes = models.PositiveIntegerField(default=0)
+
     total_comments = models.PositiveIntegerField(default=0)
+    total_posts = models.PositiveIntegerField(default=0)
+
+    total_self_posts_likes = models.PositiveIntegerField(default=0)
+    total_self_posts_dislikes = models.PositiveIntegerField(default=0)

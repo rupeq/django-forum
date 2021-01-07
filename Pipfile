@@ -12,6 +12,7 @@ djangorestframework-simplejwt = "*"
 psycopg2 = "*"
 djangorestframework-jwt = "*"
 django-mptt = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.8"

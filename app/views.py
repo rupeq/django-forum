@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
 from .serializers import *
 from .models import Post, Comment, Statistic
@@ -65,15 +66,6 @@ class PostViewSet(viewsets.GenericViewSet,
     def get_serializer_class(self):
         return self.serializer_classes_by_action.get(self.action, self.default_serializer_class)
 
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
 
 class CommentViewSet(viewsets.GenericViewSet,
                   viewsets.mixins.CreateModelMixin,
@@ -100,21 +92,33 @@ class CommentViewSet(viewsets.GenericViewSet,
     def get_serializer_class(self):
         return self.serializer_classes_by_action.get(self.action, self.default_serializer_class)
 
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
 
 class UserStatisticViewSet(viewsets.GenericViewSet,
                            viewsets.mixins.ListModelMixin):
 
-    queryset = User.objects.all()
+    queryset = Statistic.objects.all()
     serializer_class = StatisticSerializer
 
     def get_queryset(self):
         return Statistic.objects.filter(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        user = self.request.user
+
+        profile = Statistic.objects.get_or_create(user=user)[0]
+
+        posts_likes = 0
+        posts_dislikes = 0
+
+        for i in Post.objects.filter(author=user):
+            posts_likes += i.likes_count
+            posts_dislikes += i.dislikes_count
+
+        profile.total_self_posts_likes = posts_likes
+        profile.total_self_posts_dislikes = posts_dislikes
+        profile.save()
+
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(serializer.data)

@@ -57,12 +57,32 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ('theme', 'sphere', 'text')
 
+    def create(self, validated_data):
+        request = self.context['request']
+        user = request.user
+        profile = Statistic.objects.get_or_create(user=user)[0]
+        profile.total_posts += 1
+        profile.save()
+
+        post = Post.objects.create(**validated_data)
+        post.save()
+
+        return validated_data
+
 
 class ListCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
         fields = ('author', 'create', 'post', 'text', 'parent')
+
+    def is_liked(self, obj):
+        user = self.request.user
+        return is_liked(user, obj)
+
+    def is_disliked(self, obj):
+        user = self.request.user
+        return is_disliked(user, obj)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -85,4 +105,6 @@ class StatisticSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Statistic
-        fields = ('total_likes', 'total_dislikes', 'total_comments')
+        fields = ('total_posts', 'total_comments',
+                  'total_posts_likes', 'total_posts_dislikes',
+                  'total_self_posts_likes', 'total_self_posts_dislikes')
